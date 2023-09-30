@@ -4,12 +4,7 @@ namespace Unix_Sort
 {
     internal class Program
     {
-        /// <summary>
-        /// Этапы:
-        /// 1. Строки всех файлов помещаются в один временный файл.
-        /// 2. 
-        /// </summary>
-        public static List<string> SortLines(List<string> files, Dictionary<string, string> flags)
+        public static List<string> SortFiles(List<string> files, Dictionary<string, string> flags)
         {
             List<string> lines = new List<string>();
             foreach (var fileName in files)
@@ -17,17 +12,28 @@ namespace Unix_Sort
                 lines.AddRange(File.ReadAllLines(fileName));
             }
 
-            if (flags.ContainsKey("n"))
+
+            if (flags.ContainsKey("n") && flags.ContainsKey("f"))
             {
                 lines = lines.OrderBy(o => o, new StringNumericComparer()).ToList();
             }
-            else if (flags.ContainsKey("f"))
-            {
-                lines.Sort((a, b) => string.Compare(a, b, StringComparison.OrdinalIgnoreCase));
-            }
             else
             {
-                lines.Sort();
+                if (flags.ContainsKey("n"))
+                {
+                    // Сортировка "как чисел"
+                    lines = lines.OrderBy(o => o, new StringNumericComparer()).ToList();
+                }
+                else if (flags.ContainsKey("f"))
+                {
+                    // Сортировка без учёта регистра
+                    lines.Sort((a, b) => string.Compare(a, b, StringComparison.OrdinalIgnoreCase));
+                }
+                else
+                {
+                    // Просто сортировка
+                    lines.Sort();
+                }
             }
 
             if (flags.ContainsKey("u"))
@@ -69,7 +75,7 @@ namespace Unix_Sort
                     }
                 }
 
-                List<string> sortedList = SortLines(files, flags);
+                List<string> sortedList = SortFiles(files, flags);
 
                 if (flags.ContainsKey("o"))
                 {
