@@ -9,18 +9,38 @@ namespace Unix_Sort
         /// 1. Строки всех файлов помещаются в один временный файл.
         /// 2. 
         /// </summary>
-        public static void SortLines(List<string> files, Dictionary<string, string> flags)
+        public static List<string> SortLines(List<string> files, Dictionary<string, string> flags)
         {
             List<string> lines = new List<string>();
             foreach (var fileName in files)
             {
                 lines.AddRange(File.ReadAllLines(fileName));
-            } 
-                
-            lines.Sort();
-            // TODO: Не должны выводить на экран в этой функции
-            foreach (var line in lines)
-                Console.WriteLine(line);
+            }
+
+            if (flags.ContainsKey("n"))
+            {
+                lines = lines.OrderBy(o => o, new StringNumericComparer()).ToList();
+            }
+            else if (flags.ContainsKey("f"))
+            {
+                lines.Sort((a, b) => string.Compare(a, b, StringComparison.OrdinalIgnoreCase));
+            }
+            else
+            {
+                lines.Sort();
+            }
+
+            if (flags.ContainsKey("u"))
+            {
+                lines = lines.Distinct().ToList();
+            }
+
+            if (flags.ContainsKey("r"))
+            {
+                lines.Reverse();
+            }
+
+            return lines;
         }
 
         static void Main(string[] args)
@@ -34,14 +54,31 @@ namespace Unix_Sort
                     if (arg.StartsWith("-"))
                     {
                         string[] flagParam = arg.TrimStart('-').Split('=');
-                        flags[flagParam[0]] = flagParam.Length == 2 ? flagParam[1] : "";
+                        if (flagParam.Length == 2)
+                        {
+                            flags[flagParam[0]] = (flagParam[1] == "ignore-case" ? "f" : flagParam[1][0].ToString());
+                        }
+                        else
+                        {
+                            flags[flagParam[0]] = "";
+                        }
                     }
                     else
                     {
                         files.Add(arg);
                     }
                 }
-                SortLines(files, flags);
+
+                List<string> sortedList = SortLines(files, flags);
+
+                if (flags.ContainsKey("o"))
+                {
+                    File.WriteAllLines(flags["o"], sortedList);
+                }
+                else
+                {
+                    sortedList.ForEach(s => Console.WriteLine(s));
+                }
             }
         }
     }
