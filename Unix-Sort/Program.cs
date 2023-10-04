@@ -12,7 +12,6 @@ namespace Unix_Sort
                 lines.AddRange(File.ReadAllLines(fileName));
             }
 
-
             if (flags.ContainsKey("n") && flags.ContainsKey("f"))
             {
                 lines = lines.OrderBy(o => o, new StringNumericComparer()).ToList();
@@ -49,7 +48,7 @@ namespace Unix_Sort
             return lines;
         }
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             List<string> files = new List<string>();
             Dictionary<string, string> flags = new Dictionary<string, string>();
@@ -75,15 +74,23 @@ namespace Unix_Sort
                     }
                 }
 
-                List<string> sortedList = SortFiles(files, flags);
-
-                if (flags.ContainsKey("o"))
+                List<string> sortedList = new List<string>();
+                try
                 {
-                    File.WriteAllLines(flags["o"], sortedList);
+                    sortedList = SortFiles(files, flags);
+                    
+                    if (flags.ContainsKey("o"))
+                    {
+                        File.WriteAllLines(flags["o"], sortedList);
+                    }
+                    else
+                    {
+                        sortedList.ForEach(s => Console.WriteLine(s));
+                    }
                 }
-                else
+                catch (FileNotFoundException e)
                 {
-                    sortedList.ForEach(s => Console.WriteLine(s));
+                    Console.WriteLine($"Файл {e.FileName} не найден!");
                 }
             }
         }
