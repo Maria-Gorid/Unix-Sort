@@ -2,7 +2,7 @@
 
 namespace Unix_Sort
 {
-    internal class Program
+    public class Program
     {
         public static List<string> SortFiles(List<string> files, Dictionary<string, string> flags)
         {
@@ -62,11 +62,11 @@ namespace Unix_Sort
                         string[] flagParam = arg.TrimStart('-').Split('=');
                         if (flagParam.Length == 2)
                         {
-                            flags[flagParam[0]] = (flagParam[1] == "ignore-case" ? "f" : flagParam[1][0].ToString());
+                            flags[flagParam[0]] = flagParam[1];
                         }
                         else
                         {
-                            flags[flagParam[0]] = "";
+                            flags[flagParam[0]] = (flagParam[0] == "ignore-case" ? "f" : flagParam[0][0].ToString());
                         }
                     }
                     else
